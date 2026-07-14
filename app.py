@@ -58,7 +58,7 @@ if page == "🏠 Overview":
     st.title("Machine Learning Based ECG Signal Analysis")
     st.subheader("for Heart Health Assessment")
 
-    st.image("images/ecg_banner.png", use_container_width=True)
+    st.image("ecg_banner.png", use_container_width=True)
 
     st.write("---")
 
@@ -81,7 +81,7 @@ The developed system performs:
     st.subheader("Project Workflow")
 
     st.image(
-        "images/workflow.png",
+        "workflow.png",
         use_container_width=True
     )
 
@@ -128,7 +128,7 @@ elif page == "📊 About Dataset":
     with col2:
 
         st.image(
-            "images/mitbih.png",
+            "mitbih.png",
             use_container_width=True
         )
 
@@ -203,7 +203,7 @@ This produced a balanced dataset for CNN training.
         st.markdown("#### Before Balancing")
 
         st.image(
-            "images/pie_before.png",
+            "pie_before.png",
             use_container_width=True
         )
 
@@ -212,7 +212,7 @@ This produced a balanced dataset for CNN training.
         st.markdown("#### After Balancing")
 
         st.image(
-            "images/pie_after.png",
+            "pie_after.png",
             use_container_width=True
         )
 
