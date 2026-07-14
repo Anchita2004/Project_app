@@ -1,17 +1,42 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
 
-# ---------------------------
+from tensorflow.keras.models import load_model
+
+# -----------------------------------
+# Load CNN Model
+# -----------------------------------
+
+@st.cache_resource
+def load_cnn_model():
+    return load_model("ecg_1dcnn.keras")
+
+model = load_cnn_model()
+
+# -----------------------------------
+# Load Class Labels
+# -----------------------------------
+
+class_names = np.load(
+    "label_classes.npy",
+    allow_pickle=True
+)
+
+# -----------------------------------
 # Page Configuration
-# ---------------------------
+# -----------------------------------
+
 st.set_page_config(
     page_title="ECG Signal Analysis",
     page_icon="❤️",
     layout="wide"
 )
 
-# ---------------------------
+# -----------------------------------
 # Sidebar
-# ---------------------------
+# -----------------------------------
+
 st.sidebar.title("❤️ ECG Signal Analysis")
 
 page = st.sidebar.radio(
@@ -25,14 +50,15 @@ page = st.sidebar.radio(
 )
 
 # ---------------------------
-# HOME PAGE
+# OVERVIEW PAGE
 # ---------------------------
+
 if page == "🏠 Overview":
 
     st.title("Machine Learning Based ECG Signal Analysis")
     st.subheader("for Heart Health Assessment")
 
-    st.image("ecg_banner.png", use_container_width=True)
+    st.image("images/ecg_banner.png", use_container_width=True)
 
     st.write("---")
 
@@ -54,14 +80,16 @@ The developed system performs:
 
     st.subheader("Project Workflow")
 
-    st.image("workflow.png", use_container_width=True)
+    st.image(
+        "images/workflow.png",
+        use_container_width=True
+    )
 
 # ---------------------------
 # ABOUT DATASET
 # ---------------------------
-elif page == "📊 About Dataset":
 
-    import pandas as pd
+elif page == "📊 About Dataset":
 
     st.title("📊 About Dataset")
 
@@ -73,12 +101,12 @@ elif page == "📊 About Dataset":
 
     st.subheader("📚 MIT-BIH Arrhythmia Database")
 
-    col1, col2 = st.columns([2,1])
+    col1, col2 = st.columns([2, 1])
 
     with col1:
 
         st.table({
-            "Parameter":[
+            "Parameter": [
                 "Dataset",
                 "Patients",
                 "ECG Records",
@@ -87,7 +115,7 @@ elif page == "📊 About Dataset":
                 "Selected Heartbeat Classes"
             ],
 
-            "Value":[
+            "Value": [
                 "MIT-BIH Arrhythmia Database",
                 "47 Patients",
                 "48 ECG Records",
@@ -100,8 +128,7 @@ elif page == "📊 About Dataset":
     with col2:
 
         st.image(
-            "mitbih.png",
-            
+            "images/mitbih.png",
             use_container_width=True
         )
 
@@ -115,7 +142,7 @@ elif page == "📊 About Dataset":
 
     annotation_df = pd.DataFrame({
 
-        "Annotation Symbol":[
+        "Annotation Symbol": [
             "N",
             "A",
             "V",
@@ -124,7 +151,7 @@ elif page == "📊 About Dataset":
             "/"
         ],
 
-        "Description":[
+        "Description": [
             "Normal Beat",
             "Atrial Premature Beat",
             "Ventricular Premature Beat",
@@ -150,16 +177,18 @@ elif page == "📊 About Dataset":
     st.subheader("⚖️ Dataset Balancing")
 
     st.write("""
-The original ECG dataset exhibited a significant class imbalance, with the normal heartbeat class containing substantially more samples than the abnormal heartbeat classes. To address this issue, a hybrid balancing strategy was employed.
+The original ECG dataset exhibited a significant class imbalance, with the normal heartbeat class containing substantially more samples than the abnormal heartbeat classes.
+
+To address this issue:
 
 - Downsampling was applied to the majority class.
 - Upsampling was applied to the minority classes.
-- Each selected heartbeat class was balanced to **5000 ECG beats**, resulting in a balanced dataset suitable for CNN training.
+- Each selected heartbeat class was balanced to **5000 ECG beats**.
+
+This produced a balanced dataset for CNN training.
 """)
 
-
     st.write("---")
-
 
     # =====================================================
     # Dataset Distribution
@@ -174,7 +203,7 @@ The original ECG dataset exhibited a significant class imbalance, with the norma
         st.markdown("#### Before Balancing")
 
         st.image(
-            "pie_before.png",
+            "images/pie_before.png",
             use_container_width=True
         )
 
@@ -183,13 +212,11 @@ The original ECG dataset exhibited a significant class imbalance, with the norma
         st.markdown("#### After Balancing")
 
         st.image(
-            "pie_after.png",
+            "images/pie_after.png",
             use_container_width=True
         )
 
     st.write("---")
-
-    
 
     # =====================================================
     # Dataset Summary
@@ -197,217 +224,329 @@ The original ECG dataset exhibited a significant class imbalance, with the norma
 
     st.subheader("📌 Dataset Summary")
 
-    col1, col2, col3, col4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns(4)
 
-    with col1:
-        st.metric("Selected Classes", "6")
-
-    with col2:
-        st.metric("Samples / Class", "5000")
-
-    with col3:
-        st.metric("Training Split", "80%")
-
-    with col4:
-        st.metric("Testing Split", "20%")
-
+    c1.metric("Selected Classes", "6")
+    c2.metric("Samples / Class", "5000")
+    c3.metric("Training Split", "80%")
+    c4.metric("Testing Split", "20%")
 # ---------------------------
 # HEARTBEAT CLASSIFICATION
 # ---------------------------
-elif page == "❤️ Heartbeat Classification":
 
-    import pandas as pd
+elif page == "❤️ Heartbeat Classification":
 
     st.title("❤️ Heartbeat Classification")
 
-    # ----------------------------------------
-    # Information Box
-    # ----------------------------------------
     st.info("""
-### ECG Dataset Analysis
+### ECG Heartbeat Classification
 
-Upload an ECG heartbeat dataset in **CSV format** for automatic heartbeat analysis.
+Upload a segmented ECG dataset in CSV format.
 
-The uploaded dataset will be analyzed to determine whether it contains only **Normal (N)** heartbeats or any **Abnormal** heartbeat categories.
+The trained 1D CNN model will automatically classify every ECG beat.
 
-Supported heartbeat classes:
+Supported heartbeat classes
 
-• N – Normal Beat
+• N - Normal Beat
 
-• A – Atrial Premature Beat
+• A - Atrial Premature Beat
 
-• V – Ventricular Premature Beat
+• V - Ventricular Premature Beat
 
-• L – Left Bundle Branch Block Beat
+• L - Left Bundle Branch Block Beat
 
-• R – Right Bundle Branch Block Beat
+• R - Right Bundle Branch Block Beat
 
-• / – Paced Beat
+• / - Paced Beat
+
+Dataset Format
+
+Patient_ID | Start_Point | End_Point | Label | ECG Signal Columns | Label
 """)
 
     st.write("")
 
-    
-
-    # ----------------------------------------
-    # Upload Section
-    # ----------------------------------------
-
     st.subheader("📤 Upload ECG Dataset")
-
-    st.caption("Supported format: CSV | Maximum file size: 200 MB")
 
     uploaded = st.file_uploader(
         "",
-        type=["csv"],
-        help="Upload the ECG heartbeat dataset."
+        type=["csv"]
     )
-
-    # ----------------------------------------
-    # After Upload
-    # ----------------------------------------
 
     if uploaded is not None:
 
-        st.success(f"✅ File Uploaded Successfully : {uploaded.name}")
+        st.success(f"Uploaded File : {uploaded.name}")
 
-        # Read CSV
-        df = pd.read_csv(uploaded, header=None)
-
-        # Remove header row
-        df = df.iloc[1:].reset_index(drop=True)
-
-        LABEL_COLUMN = 3
-
-        labels = df[LABEL_COLUMN].astype(str).str.strip()
-
-        total_beats = len(labels)
-        normal_beats = (labels == "N").sum()
-        abnormal_beats = total_beats - normal_beats
+        df = pd.read_csv(uploaded)
 
         st.write("")
 
+        st.write("Dataset Shape :", df.shape)
+
         if st.button("🔍 Analyze ECG", use_container_width=True):
 
-            st.subheader("📊 Dataset Summary")
+            try:
 
-            c1, c2, c3 = st.columns(3)
+                # -------------------------------------
+                # Extract ECG signal columns
+                # -------------------------------------
 
-            with c1:
-                st.metric("Total Beats", total_beats)
+                X = df.iloc[:, 4:-1].astype("float32").values
 
-            with c2:
-                st.metric("Normal Beats", normal_beats)
+                X = X.reshape(X.shape[0], X.shape[1], 1)
 
-            with c3:
-                st.metric("Abnormal Beats", abnormal_beats)
+                # -------------------------------------
+                # CNN Prediction
+                # -------------------------------------
 
-            st.write("---")
+                with st.spinner("Running 1D CNN..."):
 
-            st.subheader("🏷️ Detected Beat Types")
+                    predictions = model.predict(
+                        X,
+                        verbose=0
+                    )
 
-            st.write(", ".join(sorted(labels.unique())))
-
-            st.write("---")
-
-            if abnormal_beats == 0:
-
-                st.success("🟢 ECG STATUS : NORMAL")
-
-                st.success("No abnormal heartbeat detected in the uploaded dataset.")
-
-            else:
-
-                st.error("🔴 ECG STATUS : ABNORMAL")
-
-                st.warning(
-                    f"{abnormal_beats} abnormal heartbeat(s) detected in the uploaded dataset."
+                predicted_index = np.argmax(
+                    predictions,
+                    axis=1
                 )
 
-            st.write("---")
+                labels = class_names[predicted_index]
 
-            st.subheader("📈 Beat Distribution")
+                # -------------------------------------
+                # Summary
+                # -------------------------------------
 
-            beat_table = (
-                labels.value_counts()
-                .rename_axis("Beat Type")
-                .reset_index(name="Count")
-            )
+                total_beats = len(labels)
 
-            st.dataframe(
-                beat_table,
-                use_container_width=True,
-                hide_index=True
-            )
+                normal_beats = np.sum(labels == "N")
+
+                abnormal_beats = total_beats - normal_beats
+
+                st.write("---")
+
+                st.subheader("📊 Dataset Summary")
+
+                c1, c2, c3 = st.columns(3)
+
+                c1.metric(
+                    "Total Beats",
+                    total_beats
+                )
+
+                c2.metric(
+                    "Normal Beats",
+                    normal_beats
+                )
+
+                c3.metric(
+                    "Abnormal Beats",
+                    abnormal_beats
+                )
+
+                st.write("---")
+
+                st.subheader("🏷️ Predicted Beat Types")
+
+                st.write(", ".join(sorted(np.unique(labels))))
+
+                st.write("---")
+
+                if abnormal_beats == 0:
+
+                    st.success("🟢 ECG STATUS : NORMAL")
+
+                    st.success(
+                        "No abnormal heartbeat detected."
+                    )
+
+                else:
+
+                    st.error("🔴 ECG STATUS : ABNORMAL")
+
+                    st.warning(
+                        f"{abnormal_beats} abnormal heartbeat(s) detected."
+                    )
+
+                st.write("---")
+
+                st.subheader("📈 Beat Distribution")
+
+                beat_table = (
+                    pd.Series(labels)
+                    .value_counts()
+                    .rename_axis("Beat Type")
+                    .reset_index(name="Count")
+                )
+
+                st.dataframe(
+                    beat_table,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+            except Exception as e:
+
+                st.error("Prediction Failed")
+
+                st.exception(e)
 # ---------------------------
-# MODEL PERFORMANCE
+# HEARTBEAT CLASSIFICATION
 # ---------------------------
-elif page == "📈 Model Performance":
 
-    st.title("📈 Model Performance")
+elif page == "❤️ Heartbeat Classification":
 
-    st.write("---")
+    st.title("❤️ Heartbeat Classification")
 
-    # Create two equal columns
-    col1, col2 = st.columns(2)
+    st.info("""
+### ECG Heartbeat Classification
 
-    # ==========================
-    # 1D CNN
-    # ==========================
-    with col1:
+Upload a segmented ECG dataset in CSV format.
 
-        st.subheader("1D Convolutional Neural Network")
+The trained 1D CNN model will automatically classify every ECG beat.
 
-        st.metric(
-            label="Test Accuracy",
-            value="97.25%"
-        )
+Supported heartbeat classes
 
-        st.markdown("### Accuracy Plot")
-        st.image(
-            "accuracy_plot_1d.png",
-            use_container_width=True
-        )
+• N - Normal Beat
 
-        st.markdown("### Loss Plot")
-        st.image(
-            "loss_plot_1d.png",
-            use_container_width=True
-        )
+• A - Atrial Premature Beat
 
-        st.markdown("### Confusion Matrix")
-        st.image(
-            "confusion_matrix_1d.png",
-            use_container_width=True
-        )
+• V - Ventricular Premature Beat
 
-    # ==========================
-    # 2D CNN
-    # ==========================
-    with col2:
+• L - Left Bundle Branch Block Beat
 
-        st.subheader("2D Convolutional Neural Network")
+• R - Right Bundle Branch Block Beat
 
-        st.metric(
-            label="Test Accuracy",
-            value="96.40%"
-        )
+• / - Paced Beat
 
-        st.markdown("### Accuracy Plot")
-        st.image(
-            "accuracy_plot_2d.png",
-            use_container_width=True
-        )
+Dataset Format
 
-        st.markdown("### Loss Plot")
-        st.image(
-            "loss_plot_2d.png",
-            use_container_width=True
-        )
+Patient_ID | Start_Point | End_Point | Label | ECG Signal Columns | Label
+""")
 
-        st.markdown("### Confusion Matrix")
-        st.image(
-            "confusion_matrix_2d.png",
-            use_container_width=True
-        )
+    st.write("")
 
+    st.subheader("📤 Upload ECG Dataset")
+
+    uploaded = st.file_uploader(
+        "",
+        type=["csv"]
+    )
+
+    if uploaded is not None:
+
+        st.success(f"Uploaded File : {uploaded.name}")
+
+        df = pd.read_csv(uploaded)
+
+        st.write("")
+
+        st.write("Dataset Shape :", df.shape)
+
+        if st.button("🔍 Analyze ECG", use_container_width=True):
+
+            try:
+
+                # -------------------------------------
+                # Extract ECG signal columns
+                # -------------------------------------
+
+                X = df.iloc[:, 4:-1].astype("float32").values
+
+                X = X.reshape(X.shape[0], X.shape[1], 1)
+
+                # -------------------------------------
+                # CNN Prediction
+                # -------------------------------------
+
+                with st.spinner("Running 1D CNN..."):
+
+                    predictions = model.predict(
+                        X,
+                        verbose=0
+                    )
+
+                predicted_index = np.argmax(
+                    predictions,
+                    axis=1
+                )
+
+                labels = class_names[predicted_index]
+
+                # -------------------------------------
+                # Summary
+                # -------------------------------------
+
+                total_beats = len(labels)
+
+                normal_beats = np.sum(labels == "N")
+
+                abnormal_beats = total_beats - normal_beats
+
+                st.write("---")
+
+                st.subheader("📊 Dataset Summary")
+
+                c1, c2, c3 = st.columns(3)
+
+                c1.metric(
+                    "Total Beats",
+                    total_beats
+                )
+
+                c2.metric(
+                    "Normal Beats",
+                    normal_beats
+                )
+
+                c3.metric(
+                    "Abnormal Beats",
+                    abnormal_beats
+                )
+
+                st.write("---")
+
+                st.subheader("🏷️ Predicted Beat Types")
+
+                st.write(", ".join(sorted(np.unique(labels))))
+
+                st.write("---")
+
+                if abnormal_beats == 0:
+
+                    st.success("🟢 ECG STATUS : NORMAL")
+
+                    st.success(
+                        "No abnormal heartbeat detected."
+                    )
+
+                else:
+
+                    st.error("🔴 ECG STATUS : ABNORMAL")
+
+                    st.warning(
+                        f"{abnormal_beats} abnormal heartbeat(s) detected."
+                    )
+
+                st.write("---")
+
+                st.subheader("📈 Beat Distribution")
+
+                beat_table = (
+                    pd.Series(labels)
+                    .value_counts()
+                    .rename_axis("Beat Type")
+                    .reset_index(name="Count")
+                )
+
+                st.dataframe(
+                    beat_table,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+            except Exception as e:
+
+                st.error("Prediction Failed")
+
+                st.exception(e)
