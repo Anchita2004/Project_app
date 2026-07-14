@@ -550,3 +550,24 @@ Patient_ID | Start_Point | End_Point | Label | ECG Signal Columns | Label
                 st.error("Prediction Failed")
 
                 st.exception(e)
+elif page == "📈 Model Performance":
+
+    st.title("📈 Model Performance")
+
+    st.write("---")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("1D Convolutional Neural Network")
+        st.metric("Test Accuracy", "97.25%")
+        st.image("accuracy_plot_1d.png", use_container_width=True)
+        st.image("loss_plot_1d.png", use_container_width=True)
+        st.image("confusion_matrix_1d.png", use_container_width=True)
+
+    with col2:
+        st.subheader("2D Convolutional Neural Network")
+        st.metric("Test Accuracy", "96.40%")
+        st.image("accuracy_plot_2d.png", use_container_width=True)
+        st.image("loss_plot_2d.png", use_container_width=True)
+        st.image("confusion_matrix_2d.png", use_container_width=True)
