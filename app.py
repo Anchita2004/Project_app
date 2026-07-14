@@ -54,7 +54,7 @@ The developed system performs:
 
     st.subheader("Project Workflow")
 
-    st.image("images/workflow.png", use_container_width=True)
+    st.image("workflow.png", use_container_width=True)
 
 # ---------------------------
 # ABOUT DATASET
@@ -100,7 +100,7 @@ elif page == "📊 About Dataset":
     with col2:
 
         st.image(
-            "images/mitbih.png",
+            "mitbih.png",
             
             use_container_width=True
         )
@@ -174,7 +174,7 @@ The original ECG dataset exhibited a significant class imbalance, with the norma
         st.markdown("#### Before Balancing")
 
         st.image(
-            "images/pie_before.png",
+            "pie_before.png",
             use_container_width=True
         )
 
@@ -183,7 +183,7 @@ The original ECG dataset exhibited a significant class imbalance, with the norma
         st.markdown("#### After Balancing")
 
         st.image(
-            "images/pie_after.png",
+            "pie_after.png",
             use_container_width=True
         )
 
@@ -365,19 +365,19 @@ elif page == "📈 Model Performance":
 
         st.markdown("### Accuracy Plot")
         st.image(
-            "images/accuracy_plot_1d.png",
+            "accuracy_plot_1d.png",
             use_container_width=True
         )
 
         st.markdown("### Loss Plot")
         st.image(
-            "images/loss_plot_1d.png",
+            "loss_plot_1d.png",
             use_container_width=True
         )
 
         st.markdown("### Confusion Matrix")
         st.image(
-            "images/confusion_matrix_1d.png",
+            "confusion_matrix_1d.png",
             use_container_width=True
         )
 
@@ -395,19 +395,19 @@ elif page == "📈 Model Performance":
 
         st.markdown("### Accuracy Plot")
         st.image(
-            "images/accuracy_plot_2d.png",
+            "accuracy_plot_2d.png",
             use_container_width=True
         )
 
         st.markdown("### Loss Plot")
         st.image(
-            "images/loss_plot_2d.png",
+            "loss_plot_2d.png",
             use_container_width=True
         )
 
         st.markdown("### Confusion Matrix")
         st.image(
-            "images/confusion_matrix_2d.png",
+            "confusion_matrix_2d.png",
             use_container_width=True
         )
 
