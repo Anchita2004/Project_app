@@ -32,7 +32,7 @@ if page == "🏠 Overview":
     st.title("Machine Learning Based ECG Signal Analysis")
     st.subheader("for Heart Health Assessment")
 
-    st.image("images/ecg_banner.png", use_container_width=True)
+    st.image("ecg_banner.png", use_container_width=True)
 
     st.write("---")
 
